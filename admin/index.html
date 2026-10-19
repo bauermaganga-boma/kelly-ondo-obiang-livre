@@ -63,16 +63,20 @@ small{color:var(--mut)}
 <header class="noprint"><div class="wrap"><span class="logo">Gestion <span>· Ventes</span></span><button class="btn ghost" id="out" style="display:none;padding:7px 14px">Déconnexion</button></div></header>
 
 <div class="wrap" id="offline"><div class="card">
-  <h2 style="font-size:1.5rem">Serveur requis</h2>
-  <p style="color:var(--mut)">Cet espace de gestion fonctionne sur le site hébergé avec son serveur (suivi des commandes en ligne). Cette version de démonstration n'enregistre pas de commandes.</p>
+  <h2 style="font-size:1.5rem">Connexion impossible</h2>
+  <p style="color:var(--mut)">La base des commandes ne répond pas. Vérifiez votre connexion puis <a href="">rechargez la page</a>.</p>
 </div></div>
 
 <div class="wrap" id="login"><div class="card">
   <h2 style="font-size:1.6rem">Connexion</h2>
-  <form id="lf"><label>Mot de passe<input type="password" id="pw" required autofocus></label><div class="msg" id="lerr"></div><button class="btn">Entrer</button></form>
+  <form id="lf"><label>Email<input type="email" id="em" required autocomplete="username"></label><label>Mot de passe<input type="password" id="pw" required autocomplete="current-password"></label><div class="msg" id="lerr"></div><button class="btn">Entrer</button></form>
 </div></div>
 
 <div class="wrap" id="app">
+  <div class="panel" id="demoBar" style="display:none;margin-top:18px;border-color:var(--gold)">
+    <b style="color:var(--gold)">Mode démonstration</b> — les commandes sont enregistrées uniquement dans ce navigateur. Pour recevoir les commandes de tous les visiteurs, la base Supabase doit être reliée (voir LISEZMOI).
+    <div class="bar" style="margin:12px 0 0"><button class="btn ghost" id="seed">Charger des exemples</button><button class="btn ghost" id="wipe">Tout effacer</button></div>
+  </div>
   <div class="stats">
     <div class="stat"><b id="sN">0</b><span>Commandes</span></div>
     <div class="stat"><b id="sQ">0</b><span>Exemplaires vendus</span></div>
@@ -94,7 +98,7 @@ small{color:var(--mut)}
     <select id="fs"><option value="">Tous les statuts</option></select>
     <button class="btn ghost" id="refresh">↻ Actualiser</button>
     <button class="btn ghost" id="print">Imprimer</button>
-    <a class="btn" href="../api/admin/export.csv">Exporter (Excel)</a>
+    <button class="btn" id="csv">Exporter (Excel)</button>
   </div>
   <table>
     <thead><tr><th>Réf. / date</th><th>Client</th><th>Livraison</th><th>Qté / total</th><th>Paiement</th><th>Statut</th><th class="noprint">Note</th><th class="noprint"></th></tr></thead>
@@ -103,6 +107,8 @@ small{color:var(--mut)}
   <p id="empty" style="display:none;color:var(--mut);padding:30px 0">Aucune commande pour le moment.</p>
 </div>
 
+<script src="../config.js"></script>
+<script src="../store.js"></script>
 <script>
 const STATUTS = ['nouvelle', 'confirmée', 'expédiée', 'livrée', 'annulée'];
 const COLORS = ['#e8a317', '#4f8cff', '#3ecf8e', '#a78bfa', '#f87171', '#22d3ee', '#fb923c', '#f472b6'];
@@ -113,32 +119,36 @@ const el = (tag, props = {}, ...kids) => { const e = Object.assign(document.crea
 const svg = (tag, attrs) => { const e = document.createElementNS('http://www.w3.org/2000/svg', tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
 const pays = (c) => c.pays || 'Gabon';
 
-async function call(url, opts) {
-  const r = await fetch(url, opts && { headers: { 'Content-Type': 'application/json' }, ...opts });
-  if (r.status === 401) { showLogin(); throw new Error('401'); }
-  if (!r.ok && r.status !== 400) { showOffline(); throw new Error('offline'); }
-  return r.json();
-}
-const patch = (id, body) => call('../api/admin/commandes/' + id, { method: 'PATCH', body: JSON.stringify(body) });
+const guard = async (fn) => { try { return await fn(); } catch (e) { if (e.auth) { showLogin(); throw e; } showOffline(); throw e; } };
+const patch = (id, body) => guard(() => Store.update(id, body));
 
 const hide = () => ['login', 'app', 'offline'].forEach((i) => ($(i).style.display = 'none'));
 function showLogin() { hide(); $('login').style.display = ''; $('out').style.display = 'none'; }
-function showApp() { hide(); $('app').style.display = 'block'; $('out').style.display = ''; }
+function showApp() { hide(); $('app').style.display = 'block'; $('out').style.display = Store.real ? '' : 'none'; $('demoBar').style.display = Store.real ? 'none' : 'block'; }
 function showOffline() { hide(); $('offline').style.display = 'block'; }
 
 $('fs').append(...STATUTS.map((s) => el('option', { value: s, textContent: s })));
 
 $('lf').onsubmit = async (e) => {
   e.preventDefault();
-  const r = await fetch('../api/admin/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: $('pw').value }) });
-  if (r.ok) { showApp(); load(); } else { $('lerr').textContent = 'Mot de passe incorrect.'; $('lerr').className = 'msg err'; }
+  try { await Store.login($('em').value, $('pw').value); showApp(); load(); } catch (er) { $('lerr').textContent = er.message; $('lerr').className = 'msg err'; }
 };
-$('out').onclick = async () => { await fetch('../api/admin/logout', { method: 'POST' }); $('pw').value = ''; showLogin(); };
+$('out').onclick = () => { Store.logout(); $('pw').value = ''; showLogin(); };
+$('seed').onclick = () => { Store.seedDemo(); load(); };
+$('wipe').onclick = () => { if (confirm('Effacer toutes les commandes de démonstration ?')) { Store.clearDemo(); load(); } };
+$('csv').onclick = () => {
+  const cell = (v) => { let s = String(v ?? ''); if (/^[=+-@]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; };
+  const head = ['Référence', 'Date', 'Nom', 'Téléphone', 'Email', 'Pays', 'Ville', 'Quartier', 'Adresse', 'Quantité', 'Total', 'Devise', 'Paiement', 'Payé', 'Statut', 'Note'];
+  const rows = data.map((r) => [r.reference, r.date, r.nom, r.telephone, r.email, pays(r), r.ville, r.quartier, r.adresse, r.quantite, r.total, r.devise, r.paiement, r.paye ? 'oui' : 'non', r.statut, r.note].map(cell).join(';'));
+  const url = URL.createObjectURL(new Blob(['﻿' + [head.map(cell).join(';'), ...rows].join('\r\n')], { type: 'text/csv;charset=utf-8' }));
+  Object.assign(document.createElement('a'), { href: url, download: 'commandes.csv' }).click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+};
 $('print').onclick = () => window.print();
 $('refresh').onclick = load;
 $('q').oninput = $('fs').onchange = $('fp').onchange = render;
 
-async function load() { data = await call('../api/admin/commandes'); render(); }
+async function load() { data = await guard(() => Store.list()); render(); }
 
 function drawPie(live) {
   const by = {};
@@ -197,7 +207,7 @@ function render() {
     const note = el('input', { type: 'text', value: c.note || '', placeholder: 'note…' });
     note.onchange = () => patch(c.id, { note: note.value });
     const del = el('button', { className: 'btn ghost', textContent: '✕ Supprimer', style: 'padding:6px 12px' });
-    del.onclick = async () => { if (confirm(`Supprimer définitivement la commande ${c.reference} ?`)) { await call('../api/admin/commandes/' + c.id, { method: 'DELETE' }); load(); } };
+    del.onclick = async () => { if (confirm(`Supprimer définitivement la commande ${c.reference} ?`)) { await guard(() => Store.remove(c.id)); load(); } };
     const tel = el('a', { href: 'tel:' + c.telephone, textContent: c.telephone });
     const wa = el('a', { href: 'https://wa.me/' + c.telephone.replace(/\D/g, ''), target: '_blank', rel: 'noopener', textContent: ' · WhatsApp', className: 'noprint' });
     const td = (l, cls, ...k) => { const e = el('td', { className: cls || '' }, ...k); e.dataset.l = l; return e; };
@@ -213,7 +223,7 @@ function render() {
   }));
 }
 
-call('../api/admin/commandes').then((d) => { data = d; showApp(); render(); }).catch((e) => { if (e.message !== '401' && e.message !== 'offline') showOffline(); });
+if (Store.loggedIn()) { showApp(); load().catch(() => {}); } else showLogin();
 </script>
 </body>
 </html>

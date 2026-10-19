@@ -7,13 +7,13 @@
 <meta name="description" content="Commandez « L'espoir doit mourir en dernier », l'essai de Kelly Ondo Obiang publié aux Éditions Filiga. Livraison au Gabon.">
 <meta property="og:title" content="L'espoir doit mourir en dernier — Kelly Ondo Obiang">
 <meta property="og:description" content="Mémoires d'un patriote gabonais. Essai. Éditions Filiga.">
-<meta property="og:image" content="/img/couverture.jpg">
-<link rel="stylesheet" href="/style.css">
+<meta property="og:image" content="img/couverture.jpg">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header><div class="wrap">
-  <a class="logo" href="/">Kelly <span>Ondo Obiang</span></a>
-  <nav><a class="hide" href="/#livre">Le livre</a><a class="hide" href="/auteur">L'auteur</a><a class="btn" href="/#commander">Commander</a></nav>
+  <a class="logo" href="index.html">Kelly <span>Ondo Obiang</span></a>
+  <nav><a class="hide" href="index.html#livre">Le livre</a><a class="hide" href="auteur.html">L'auteur</a><a class="btn" href="index.html#commander">Commander</a></nav>
 </div></header>
 
 <main>
@@ -24,13 +24,13 @@
     <h1>L'espoir doit mourir <em>en dernier</em></h1>
     <p class="sub">Mémoires d'un patriote gabonais</p>
     <p class="lead">Livraison au Gabon, en France et partout en Europe.<br>Un récit vrai, une réflexion sur la résilience, la justice et la place du citoyen face à l'adversité — adressée à la jeunesse africaine.</p>
-    <div class="cta"><span class="price" id="prix">—</span><span class="cur" role="group" aria-label="Devise"><button type="button" data-cur="FCFA" class="on">FCFA</button><button type="button" data-cur="EUR">€</button></span><a class="btn" href="#commander">Commander mon exemplaire</a><a class="btn ghost" href="/auteur">Découvrir l'auteur</a></div>
+    <div class="cta"><span class="price" id="prix">—</span><span class="cur" role="group" aria-label="Devise"><button type="button" data-cur="FCFA" class="on">FCFA</button><button type="button" data-cur="EUR">€</button></span><a class="btn" href="#commander">Commander mon exemplaire</a><a class="btn ghost" href="auteur.html">Découvrir l'auteur</a></div>
   </div>
-  <img class="cover" src="/img/couverture.jpg" alt="Couverture du livre L'espoir doit mourir en dernier">
+  <img class="cover" src="img/couverture.jpg" alt="Couverture du livre L'espoir doit mourir en dernier">
 </div></div>
 
 <section id="livre" class="alt"><div class="wrap two">
-  <img class="rounded" src="/img/livre-en-main.jpg" alt="Le livre L'espoir doit mourir en dernier tenu à deux mains" loading="lazy">
+  <img class="rounded" src="img/livre-en-main.jpg" alt="Le livre L'espoir doit mourir en dernier tenu à deux mains" loading="lazy">
   <div>
     <span class="tag">Le livre</span>
     <h2>Une méthode, pas une plainte</h2>
@@ -47,7 +47,7 @@
 </div></section>
 
 <section id="auteur-teaser"><div class="wrap two">
-  <img class="rounded" src="/img/couverture.jpg" alt="Kelly Ondo Obiang" loading="lazy" style="max-height:520px;object-fit:cover;object-position:top;width:100%">
+  <img class="rounded" src="img/couverture.jpg" alt="Kelly Ondo Obiang" loading="lazy" style="max-height:520px;object-fit:cover;object-position:top;width:100%">
   <div>
     <span class="tag">L'auteur à l'honneur</span>
     <h2>Kelly <em style="color:var(--gold)">Ondo Obiang</em></h2>
@@ -56,7 +56,7 @@
       <p>Sous la présidence de <b>Brice Clotaire Oligui Nguema</b>, la loi d'amnistie lui rend la liberté après plus de six ans de détention.</p>
     </div>
     <p>Ancien officier de l'armée gabonaise, sa vie a basculé le 7 janvier 2019. Aujourd'hui, il reprend la parole par l'écriture : sans haine, tourné vers l'avenir.</p>
-    <p style="margin:20px 0 0;display:flex;gap:12px;flex-wrap:wrap"><a class="btn" href="/auteur">Lire son histoire →</a><a class="btn ghost" href="#commander">Commander le livre</a></p>
+    <p style="margin:20px 0 0;display:flex;gap:12px;flex-wrap:wrap"><a class="btn" href="auteur.html">Lire son histoire →</a><a class="btn ghost" href="#commander">Commander le livre</a></p>
   </div>
 </div></section>
 
@@ -92,6 +92,7 @@
       <h3>Merci !</h3>
       <p>Votre commande <strong id="ref"></strong> est bien enregistrée.<br>Nous vous contactons très vite pour la livraison.</p>
       <p style="margin-top:12px;color:var(--mut)">Montant à régler : <strong id="okTotal" style="color:var(--gold)"></strong></p>
+      <p style="margin-top:18px"><a class="btn" id="okWa" href="#" target="_blank" rel="noopener">Confirmer par WhatsApp</a></p>
     </div>
   </div>
 </div></section>
@@ -100,71 +101,78 @@
 <a class="wa" id="wa" href="#" aria-label="WhatsApp" target="_blank" rel="noopener">✆</a>
 <footer><div class="wrap">
   <p>© 2026 Kelly Ondo Obiang · <em>L'espoir doit mourir en dernier</em> — Éditions Filiga</p>
-  <p style="margin-top:6px">Site développé par <a href="#">Nendja</a> · <a href="/admin/">Gestion</a></p>
+  <p style="margin-top:6px">Site développé par <a href="#">Nendja</a> · </p>
+  <p style="margin-top:14px"><a class="btn ghost" href="admin/" style="padding:9px 18px;font-size:.9rem">⚙ Gestion : suivi des ventes et livraisons</a></p>
 </div></footer>
 
+<script src="config.js"></script>
+<script src="store.js"></script>
 <script>
-let C;
+const C = window.LIVRE_CONFIG;
 const $ = (id) => document.getElementById(id);
 let cur = 'FCFA';
-const fmt = (n) => n.toLocaleString('fr-FR').replace(/ /g, ' ') + (cur === 'EUR' ? ' €' : ' FCFA');
+const fmt = (n, d = cur) => n.toLocaleString('fr-FR').replace(/ /g, ' ') + (d === 'EUR' ? ' €' : ' FCFA');
 const abroad = () => $('pays').value !== 'Gabon';
-const P = () => (cur === 'EUR' ? C.prixEuro : C.prix), F = () => (abroad() ? C.fraisLivraisonEurope : cur === 'EUR' ? C.fraisLivraisonEuro : C.fraisLivraison);
-function onPays() {
-  const ab = abroad();
-  $('paiement').innerHTML = (ab ? ['Lien de paiement (carte / PayPal)', 'Virement bancaire'] : ['À la livraison', 'Mobile Money']).map((o) => `<option>${o}</option>`).join('');
-  $('devLabel').style.display = ab ? 'none' : '';
-  if (ab) setCur('EUR'); else calc();
+const P = () => (cur === 'EUR' ? C.prixEuro : C.prix);
+const F = () => (abroad() ? C.fraisLivraisonEurope : cur === 'EUR' ? C.fraisLivraisonEuro : C.fraisLivraison);
+const total = () => +$('qte').value * P() + F();
+
+function calc() {
+  $('detail').textContent = `${$('qte').value} × ${fmt(P())} + livraison ${fmt(F())}`;
+  $('total').textContent = fmt(total());
+  $('mm').style.display = $('paiement').value === 'Mobile Money' ? 'block' : 'none';
+  $('mm2').style.display = abroad() ? 'block' : 'none';
 }
 function setCur(v) {
   cur = v; $('devise').value = v; $('prix').textContent = fmt(P());
   document.querySelectorAll('.cur button').forEach((b) => b.classList.toggle('on', b.dataset.cur === v));
   calc();
 }
-function calc() {
-  const q = +$('qte').value;
-  $('detail').textContent = `${q} × ${fmt(P())} + livraison ${fmt(F())}`;
-  $('total').textContent = fmt(q * P() + F());
-  $('mm').style.display = $('paiement').value === 'Mobile Money' ? 'block' : 'none';
-  $('mm2').style.display = abroad() ? 'block' : 'none';
+function onPays() {
+  const ab = abroad();
+  $('paiement').innerHTML = (ab ? ['Lien de paiement (carte / PayPal)', 'Virement bancaire'] : ['À la livraison', 'Mobile Money']).map((o) => `<option>${o}</option>`).join('');
+  $('devLabel').style.display = ab ? 'none' : '';
+  if (ab) setCur('EUR'); else calc();
 }
-// Mode vitrine (sans serveur, ex. GitHub Pages) : la commande part par WhatsApp.
-let STATIC = false;
-const FALLBACK = { prix: 25000, fraisLivraison: 2000, prixEuro: 38, fraisLivraisonEuro: 3, fraisLivraisonEurope: 8, paysEurope: ['France', 'Belgique', 'Suisse', 'Allemagne', 'Espagne', 'Italie', 'Royaume-Uni', "Autre pays d'Europe"], devise: 'FCFA', whatsapp: '24100000000', mobileMoney: 'Airtel Money / Moov Money : 07 00 00 00' };
-fetch('/api/config').then((r) => { if (!r.ok) throw 0; return r.json(); }).catch(() => { STATIC = true; return FALLBACK; }).then((c) => {
-  C = c;
-  $('prix').textContent = fmt(P());
-  $('pays').append(...c.paysEurope.map((p) => Object.assign(document.createElement('option'), { textContent: p })));
-  $('qte').innerHTML = Array.from({ length: 10 }, (_, i) => `<option>${i + 1}</option>`).join('');
-  $('mm').textContent = 'Réglez par ' + c.mobileMoney + ' — nous vous confirmons par téléphone.';
-  $('wa').href = 'https://wa.me/' + c.whatsapp + '?text=' + encodeURIComponent("Bonjour, je souhaite commander « L'espoir doit mourir en dernier ».");
-  calc();
-});
+
+$('pays').append(...C.paysEurope.map((p) => Object.assign(document.createElement('option'), { textContent: p })));
+$('qte').innerHTML = Array.from({ length: 10 }, (_, i) => `<option>${i + 1}</option>`).join('');
+$('mm').textContent = 'Réglez par ' + C.mobileMoney + ' — nous vous confirmons par téléphone.';
+$('wa').href = 'https://wa.me/' + C.whatsapp + '?text=' + encodeURIComponent("Bonjour, je souhaite commander « L'espoir doit mourir en dernier ».");
+setCur('FCFA');
+
 $('qte').onchange = $('paiement').onchange = calc;
 $('devise').onchange = () => setCur($('devise').value);
 $('pays').onchange = onPays;
 document.querySelectorAll('.cur button').forEach((b) => (b.onclick = () => setCur(b.dataset.cur)));
+
 $('form').onsubmit = async (e) => {
   e.preventDefault();
   $('err').className = 'msg';
   $('go').disabled = true;
-  if (STATIC) {
-    const f = Object.fromEntries(new FormData(e.target));
-    const txt = `Bonjour, je commande ${f.quantite} exemplaire(s) de « L'espoir doit mourir en dernier ».\nNom : ${f.nom}\nTél : ${f.telephone}\nLivraison : ${f.adresse}, ${f.quartier || ''} ${f.ville} (${f.pays})\nPaiement : ${f.paiement}\nTotal : ${$('total').textContent}`;
-    window.open('https://wa.me/' + C.whatsapp + '?text=' + encodeURIComponent(txt), '_blank');
-    $('go').disabled = false;
-    return;
-  }
+  const f = Object.fromEntries(new FormData(e.target));
+  if (f.telephone.replace(/D/g, '').length < 8) { $('err').textContent = 'Numéro de téléphone invalide.'; $('err').className = 'msg err'; $('go').disabled = false; return; }
+  const ab = abroad();
+  const order = {
+    nom: f.nom.trim(), telephone: f.telephone.trim(), email: (f.email || '').trim(), pays: f.pays,
+    ville: f.ville.trim(), quartier: (f.quartier || '').trim(), adresse: f.adresse.trim(),
+    quantite: +f.quantite, total: total(), devise: ab ? 'EUR' : cur, paiement: f.paiement,
+  };
   try {
-    const r = await fetch('/api/commande', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.fromEntries(new FormData(e.target))) });
-    const d = await r.json();
-    if (!r.ok) throw new Error(d.error || 'Erreur');
-    $('ref').textContent = d.reference;
-    cur = d.devise; $('okTotal').textContent = fmt(d.total);
+    const saved = await Store.create(order);
+    $('ref').textContent = saved.reference;
+    $('okTotal').textContent = fmt(order.total, order.devise);
+    const txt = `Bonjour, commande ${saved.reference} de « L'espoir doit mourir en dernier »
+${order.quantite} exemplaire(s) — ${fmt(order.total, order.devise)}
+Nom : ${order.nom}
+Tél : ${order.telephone}
+Livraison : ${order.adresse}, ${order.quartier} ${order.ville} (${order.pays})
+Paiement : ${order.paiement}`;
+    $('okWa').href = 'https://wa.me/' + C.whatsapp + '?text=' + encodeURIComponent(txt);
     $('form').style.display = 'none';
     $('ok').style.display = 'block';
   } catch (er) {
-    $('err').textContent = er.message;
+    $('err').textContent = "Impossible d'enregistrer la commande. Réessayez ou commandez par WhatsApp.";
     $('err').className = 'msg err';
     $('go').disabled = false;
   }
