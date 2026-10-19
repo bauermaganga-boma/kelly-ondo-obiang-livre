@@ -61,7 +61,7 @@ small{color:var(--mut)}
 const STATUTS = ['nouvelle', 'confirmée', 'expédiée', 'livrée', 'annulée'];
 const $ = (id) => document.getElementById(id);
 let data = [];
-const money = (n) => n.toLocaleString('fr-FR').replace(/ /g, ' ') + ' FCFA';
+const money = (n, d = 'FCFA') => n.toLocaleString('fr-FR').replace(/ /g, ' ') + (d === 'EUR' ? ' €' : ' FCFA');
 const el = (tag, props = {}, ...kids) => { const e = Object.assign(document.createElement(tag), props); kids.forEach((k) => e.append(k)); return e; };
 
 async function call(url, opts) {
@@ -91,8 +91,9 @@ function render() {
   const live = data.filter((c) => c.statut !== 'annulée');
   $('sN').textContent = data.length;
   $('sQ').textContent = live.reduce((a, c) => a + c.quantite, 0);
-  $('sCA').textContent = money(live.reduce((a, c) => a + c.total, 0));
-  $('sP').textContent = money(live.filter((c) => c.paye).reduce((a, c) => a + c.total, 0));
+  const sum = (l) => money(l.filter((c) => c.devise !== 'EUR').reduce((x, c) => x + c.total, 0)) + (l.some((c) => c.devise === 'EUR') ? ' + ' + money(l.filter((c) => c.devise === 'EUR').reduce((x, c) => x + c.total, 0), 'EUR') : '');
+  $('sCA').textContent = sum(live);
+  $('sP').textContent = sum(live.filter((c) => c.paye));
   $('sL').textContent = data.filter((c) => ['nouvelle', 'confirmée', 'expédiée'].includes(c.statut)).length;
 
   const q = $('q').value.toLowerCase(), fs = $('fs').value;
@@ -115,7 +116,7 @@ function render() {
       el('td', {}, el('b', { textContent: c.reference }), el('br'), el('small', { textContent: new Date(c.date).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }) })),
       el('td', {}, el('b', { textContent: c.nom }), el('br'), tel, wa, ...(c.email ? [el('br'), el('small', { textContent: c.email })] : [])),
       el('td', {}, el('b', { textContent: c.ville + (c.quartier ? ' — ' + c.quartier : '') }), el('br'), el('small', { textContent: c.adresse })),
-      el('td', {}, `${c.quantite} ex.`, el('br'), el('b', { textContent: money(c.total) })),
+      el('td', {}, `${c.quantite} ex.`, el('br'), el('b', { textContent: money(c.total, c.devise) })),
       el('td', {}, c.paiement, el('br'), el('span', { className: 'pill ' + (c.paye ? 'paye' : 'non'), textContent: c.paye ? 'payé' : 'à encaisser' }), ' ', el('label', { className: 'noprint', style: 'display:inline;font-size:.78rem' }, paid, ' payé')),
       el('td', {}, st),
       el('td', { className: 'noprint' }, note),

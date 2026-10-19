@@ -19,11 +19,12 @@
 <main>
 <div class="hero"><div class="wrap">
   <div>
+    <div class="badge">⭐ Libéré le 30 août 2025, sous la présidence de <b>Brice Clotaire Oligui Nguema</b></div>
     <span class="tag">Essai · Éditions Filiga</span>
     <h1>L'espoir doit mourir <em>en dernier</em></h1>
     <p class="sub">Mémoires d'un patriote gabonais</p>
     <p class="lead">Un récit vrai, une réflexion sur la résilience, la justice et la place du citoyen face à l'adversité — adressée à la jeunesse africaine.</p>
-    <div class="cta"><span class="price" id="prix">—</span><a class="btn" href="#commander">Commander mon exemplaire</a><a class="btn ghost" href="/auteur">Découvrir l'auteur</a></div>
+    <div class="cta"><span class="price" id="prix">—</span><span class="cur" role="group" aria-label="Devise"><button type="button" data-cur="FCFA" class="on">FCFA</button><button type="button" data-cur="EUR">€</button></span><a class="btn" href="#commander">Commander mon exemplaire</a><a class="btn ghost" href="/auteur">Découvrir l'auteur</a></div>
   </div>
   <img class="cover" src="/img/couverture.jpg" alt="Couverture du livre L'espoir doit mourir en dernier">
 </div></div>
@@ -46,13 +47,17 @@
 </div></section>
 
 <section id="auteur-teaser"><div class="wrap two">
+  <img class="rounded" src="/img/couverture.jpg" alt="Kelly Ondo Obiang" loading="lazy" style="max-height:520px;object-fit:cover;object-position:top;width:100%">
   <div>
-    <span class="tag">L'auteur</span>
-    <h2>Un homme, une histoire, une voix</h2>
-    <p>Ancien officier de l'armée gabonaise, Kelly Ondo Obiang a vu sa vie basculer le 7 janvier 2019. Après des années de détention, il reprend la parole par l'écriture.</p>
-    <p style="margin:18px 0 24px"><a class="btn ghost" href="/auteur">Lire son histoire →</a></p>
+    <span class="tag">L'auteur à l'honneur</span>
+    <h2>Kelly <em style="color:var(--gold)">Ondo Obiang</em></h2>
+    <div class="spot">
+      <span>Libéré le 30 août 2025</span>
+      <p>Sous la présidence de <b>Brice Clotaire Oligui Nguema</b>, la loi d'amnistie lui rend la liberté après plus de six ans de détention.</p>
+    </div>
+    <p>Ancien officier de l'armée gabonaise, sa vie a basculé le 7 janvier 2019. Aujourd'hui, il reprend la parole par l'écriture : sans haine, tourné vers l'avenir.</p>
+    <p style="margin:20px 0 0;display:flex;gap:12px;flex-wrap:wrap"><a class="btn" href="/auteur">Lire son histoire →</a><a class="btn ghost" href="#commander">Commander le livre</a></p>
   </div>
-  <img class="rounded" src="/img/page-titre.jpg" alt="Page de titre du livre" loading="lazy" style="max-height:420px;object-fit:cover;width:100%">
 </div></section>
 
 <section id="commander" class="alt"><div class="wrap" style="max-width:720px">
@@ -75,6 +80,7 @@
         <label>Quantité<select name="quantite" id="qte"></select></label>
         <label>Mode de paiement<select name="paiement" id="paiement"><option>À la livraison</option><option>Mobile Money</option></select></label>
       </div>
+      <label>Je paie en<select name="devise" id="devise"><option value="FCFA">Francs CFA (FCFA)</option><option value="EUR">Euros (€)</option></select></label>
       <p id="mm" style="display:none;color:var(--mut);font-size:.9rem"></p>
       <div class="recap"><span id="detail">—</span><strong id="total">—</strong></div>
       <div class="msg" id="err"></div>
@@ -98,25 +104,34 @@
 <script>
 let C;
 const $ = (id) => document.getElementById(id);
-const fmt = (n) => n.toLocaleString('fr-FR').replace(/ /g, ' ') + ' ' + C.devise;
+let cur = 'FCFA';
+const fmt = (n) => n.toLocaleString('fr-FR').replace(/ /g, ' ') + (cur === 'EUR' ? ' €' : ' FCFA');
+const P = () => (cur === 'EUR' ? C.prixEuro : C.prix), F = () => (cur === 'EUR' ? C.fraisLivraisonEuro : C.fraisLivraison);
+function setCur(v) {
+  cur = v; $('devise').value = v; $('prix').textContent = fmt(P());
+  document.querySelectorAll('.cur button').forEach((b) => b.classList.toggle('on', b.dataset.cur === v));
+  calc();
+}
 function calc() {
   const q = +$('qte').value;
-  $('detail').textContent = `${q} × ${fmt(C.prix)} + livraison ${fmt(C.fraisLivraison)}`;
-  $('total').textContent = fmt(q * C.prix + C.fraisLivraison);
+  $('detail').textContent = `${q} × ${fmt(P())} + livraison ${fmt(F())}`;
+  $('total').textContent = fmt(q * P() + F());
   $('mm').style.display = $('paiement').value === 'Mobile Money' ? 'block' : 'none';
 }
 // Mode vitrine (sans serveur, ex. GitHub Pages) : la commande part par WhatsApp.
 let STATIC = false;
-const FALLBACK = { prix: 15000, fraisLivraison: 2000, devise: 'FCFA', whatsapp: '24100000000', mobileMoney: 'Airtel Money / Moov Money : 07 00 00 00' };
+const FALLBACK = { prix: 25000, fraisLivraison: 2000, prixEuro: 38, fraisLivraisonEuro: 3, devise: 'FCFA', whatsapp: '24100000000', mobileMoney: 'Airtel Money / Moov Money : 07 00 00 00' };
 fetch('/api/config').then((r) => { if (!r.ok) throw 0; return r.json(); }).catch(() => { STATIC = true; return FALLBACK; }).then((c) => {
   C = c;
-  $('prix').textContent = fmt(c.prix);
+  $('prix').textContent = fmt(P());
   $('qte').innerHTML = Array.from({ length: 10 }, (_, i) => `<option>${i + 1}</option>`).join('');
   $('mm').textContent = 'Réglez par ' + c.mobileMoney + ' — nous vous confirmons par téléphone.';
   $('wa').href = 'https://wa.me/' + c.whatsapp + '?text=' + encodeURIComponent("Bonjour, je souhaite commander « L'espoir doit mourir en dernier ».");
   calc();
 });
 $('qte').onchange = $('paiement').onchange = calc;
+$('devise').onchange = () => setCur($('devise').value);
+document.querySelectorAll('.cur button').forEach((b) => (b.onclick = () => setCur(b.dataset.cur)));
 $('form').onsubmit = async (e) => {
   e.preventDefault();
   $('err').className = 'msg';
@@ -133,7 +148,7 @@ $('form').onsubmit = async (e) => {
     const d = await r.json();
     if (!r.ok) throw new Error(d.error || 'Erreur');
     $('ref').textContent = d.reference;
-    $('okTotal').textContent = fmt(d.total);
+    cur = d.devise; $('okTotal').textContent = fmt(d.total);
     $('form').style.display = 'none';
     $('ok').style.display = 'block';
   } catch (er) {

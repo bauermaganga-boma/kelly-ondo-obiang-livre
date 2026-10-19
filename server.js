@@ -31,6 +31,7 @@ db.exec(`CREATE TABLE IF NOT EXISTS commandes (
   note TEXT
 )`);
 
+try { db.exec("ALTER TABLE commandes ADD COLUMN devise TEXT NOT NULL DEFAULT 'FCFA'"); } catch {}
 const STATUTS = ['nouvelle', 'confirmée', 'expédiée', 'livrée', 'annulée'];
 const sessions = new Set();
 const hits = new Map(); // anti-spam simple par IP
@@ -62,7 +63,7 @@ async function api(req, res, url) {
   const route = `${req.method} ${url.pathname}`;
 
   if (route === 'GET /api/config') {
-    return send(res, 200, { prix: cfg.prix, fraisLivraison: cfg.fraisLivraison, devise: cfg.devise, whatsapp: cfg.whatsapp, mobileMoney: cfg.mobileMoney });
+    return send(res, 200, { prix: cfg.prix, fraisLivraison: cfg.fraisLivraison, prixEuro: cfg.prixEuro, fraisLivraisonEuro: cfg.fraisLivraisonEuro, devise: cfg.devise, whatsapp: cfg.whatsapp, mobileMoney: cfg.mobileMoney });
   }
 
   if (route === 'POST /api/commande') {
@@ -77,16 +78,16 @@ async function api(req, res, url) {
       nom: clean(b.nom, 100), telephone: clean(b.telephone, 30), email: clean(b.email, 120),
       ville: clean(b.ville, 80), quartier: clean(b.quartier, 80), adresse: clean(b.adresse, 300),
       paiement: ['Mobile Money', 'À la livraison'].includes(b.paiement) ? b.paiement : 'À la livraison',
-      note: clean(b.note, 300), quantite: Math.max(1, Math.min(50, parseInt(b.quantite, 10) || 1)),
+      devise: b.devise === 'EUR' ? 'EUR' : 'FCFA', note: clean(b.note, 300), quantite: Math.max(1, Math.min(50, parseInt(b.quantite, 10) || 1)),
     };
     if (!c.nom || !c.telephone || !c.ville || !c.adresse) return send(res, 400, { error: 'Merci de remplir tous les champs obligatoires.' });
     if (c.telephone.replace(/\D/g, '').length < 8) return send(res, 400, { error: 'Numéro de téléphone invalide.' });
 
-    const total = c.quantite * cfg.prix + cfg.fraisLivraison;
+    const total = c.devise === 'EUR' ? c.quantite * cfg.prixEuro + cfg.fraisLivraisonEuro : c.quantite * cfg.prix + cfg.fraisLivraison;
     const ref = 'EDE-' + crypto.randomBytes(3).toString('hex').toUpperCase();
-    db.prepare(`INSERT INTO commandes (reference,date,nom,telephone,email,ville,quartier,adresse,quantite,total,paiement,note)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`).run(ref, new Date().toISOString(), c.nom, c.telephone, c.email, c.ville, c.quartier, c.adresse, c.quantite, total, c.paiement, c.note);
-    return send(res, 201, { reference: ref, total });
+    db.prepare(`INSERT INTO commandes (reference,date,nom,telephone,email,ville,quartier,adresse,quantite,total,paiement,note,devise)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(ref, new Date().toISOString(), c.nom, c.telephone, c.email, c.ville, c.quartier, c.adresse, c.quantite, total, c.paiement, c.note, c.devise);
+    return send(res, 201, { reference: ref, total, devise: c.devise });
   }
 
   if (route === 'POST /api/admin/login') {
@@ -110,8 +111,8 @@ async function api(req, res, url) {
     }
     if (route === 'GET /api/admin/export.csv') {
       const rows = db.prepare('SELECT * FROM commandes ORDER BY id DESC').all();
-      const head = ['Référence', 'Date', 'Nom', 'Téléphone', 'Email', 'Ville', 'Quartier', 'Adresse', 'Quantité', 'Total', 'Paiement', 'Payé', 'Statut', 'Note'];
-      const lines = rows.map((r) => [r.reference, r.date, r.nom, r.telephone, r.email, r.ville, r.quartier, r.adresse, r.quantite, r.total, r.paiement, r.paye ? 'oui' : 'non', r.statut, r.note].map(csvCell).join(';'));
+      const head = ['Référence', 'Date', 'Nom', 'Téléphone', 'Email', 'Ville', 'Quartier', 'Adresse', 'Quantité', 'Total', 'Devise', 'Paiement', 'Payé', 'Statut', 'Note'];
+      const lines = rows.map((r) => [r.reference, r.date, r.nom, r.telephone, r.email, r.ville, r.quartier, r.adresse, r.quantite, r.total, r.devise, r.paiement, r.paye ? 'oui' : 'non', r.statut, r.note].map(csvCell).join(';'));
       return send(res, 200, '﻿' + [head.map(csvCell).join(';'), ...lines].join('\r\n'), 'text/csv; charset=utf-8', { 'Content-Disposition': 'attachment; filename="commandes.csv"' });
     }
     const m = url.pathname.match(/^\/api\/admin\/commandes\/(\d+)$/);
