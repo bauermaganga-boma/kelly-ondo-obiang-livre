@@ -10,5 +10,16 @@
   "mobileMoney": "Airtel Money / Moov Money : 07 00 00 00",
   "port": 3000,
   "prixEuro": 38,
-  "fraisLivraisonEuro": 3
+  "fraisLivraisonEuro": 3,
+  "fraisLivraisonEurope": 8,
+  "paysEurope": [
+    "France",
+    "Belgique",
+    "Suisse",
+    "Allemagne",
+    "Espagne",
+    "Italie",
+    "Royaume-Uni",
+    "Autre pays d'Europe"
+  ]
 }

@@ -115,7 +115,7 @@ function render() {
     return el('tr', {},
       el('td', {}, el('b', { textContent: c.reference }), el('br'), el('small', { textContent: new Date(c.date).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }) })),
       el('td', {}, el('b', { textContent: c.nom }), el('br'), tel, wa, ...(c.email ? [el('br'), el('small', { textContent: c.email })] : [])),
-      el('td', {}, el('b', { textContent: c.ville + (c.quartier ? ' — ' + c.quartier : '') }), el('br'), el('small', { textContent: c.adresse })),
+      el('td', {}, el('b', { textContent: c.ville + (c.quartier ? ' — ' + c.quartier : '') + (c.pays && c.pays !== 'Gabon' ? ' (' + c.pays + ')' : '') }), el('br'), el('small', { textContent: c.adresse })),
       el('td', {}, `${c.quantite} ex.`, el('br'), el('b', { textContent: money(c.total, c.devise) })),
       el('td', {}, c.paiement, el('br'), el('span', { className: 'pill ' + (c.paye ? 'paye' : 'non'), textContent: c.paye ? 'payé' : 'à encaisser' }), ' ', el('label', { className: 'noprint', style: 'display:inline;font-size:.78rem' }, paid, ' payé')),
       el('td', {}, st),
