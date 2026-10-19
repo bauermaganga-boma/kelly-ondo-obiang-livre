@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>L'espoir doit mourir en dernier — Kelly Ondo Obiang</title>
+<meta name="description" content="Commandez « L'espoir doit mourir en dernier », l'essai de Kelly Ondo Obiang publié aux Éditions Filiga. Livraison au Gabon.">
+<meta property="og:title" content="L'espoir doit mourir en dernier — Kelly Ondo Obiang">
+<meta property="og:description" content="Mémoires d'un patriote gabonais. Essai. Éditions Filiga.">
+<meta property="og:image" content="img/couverture.jpg">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header><div class="wrap">
+  <a class="logo" href="index.html">Kelly <span>Ondo Obiang</span></a>
+  <nav><a class="hide" href="index.html#livre">Le livre</a><a class="hide" href="auteur.html">L'auteur</a><a class="btn" href="index.html#commander">Commander</a></nav>
+</div></header>
+
+<main>
+<div class="hero"><div class="wrap">
+  <div>
+    <span class="tag">Essai · Éditions Filiga</span>
+    <h1>L'espoir doit mourir <em>en dernier</em></h1>
+    <p class="sub">Mémoires d'un patriote gabonais</p>
+    <p class="lead">Un récit vrai, une réflexion sur la résilience, la justice et la place du citoyen face à l'adversité — adressée à la jeunesse africaine.</p>
+    <div class="cta"><span class="price" id="prix">—</span><a class="btn" href="#commander">Commander mon exemplaire</a><a class="btn ghost" href="auteur.html">Découvrir l'auteur</a></div>
+  </div>
+  <img class="cover" src="img/couverture.jpg" alt="Couverture du livre L'espoir doit mourir en dernier">
+</div></div>
+
+<section id="livre" class="alt"><div class="wrap two">
+  <img class="rounded" src="img/livre-en-main.jpg" alt="Le livre L'espoir doit mourir en dernier tenu à deux mains" loading="lazy">
+  <div>
+    <span class="tag">Le livre</span>
+    <h2>Une méthode, pas une plainte</h2>
+    <p>Essai à la fois personnel et citoyen, <em>L'espoir doit mourir en dernier</em> dépasse le récit d'un parcours. Kelly Ondo Obiang y interroge ce que l'épreuve révèle et ce qu'elle exige : tenir, se reconstruire, rester debout.</p>
+    <ul class="pts">
+      <li>Un témoignage sincère, écrit sans esprit de vengeance</li>
+      <li>Une réflexion sur la résilience, la justice et le rôle du citoyen</li>
+      <li>Un message d'espoir à la jeunesse africaine</li>
+      <li>Un hommage aux victimes des violences post-électorales de 2016</li>
+    </ul>
+    <blockquote>« L'espoir doit mourir en dernier. »</blockquote>
+    <a class="btn" href="#commander">Je commande</a>
+  </div>
+</div></section>
+
+<section id="auteur-teaser"><div class="wrap two">
+  <div>
+    <span class="tag">L'auteur</span>
+    <h2>Un homme, une histoire, une voix</h2>
+    <p>Ancien officier de l'armée gabonaise, Kelly Ondo Obiang a vu sa vie basculer le 7 janvier 2019. Après des années de détention, il reprend la parole par l'écriture.</p>
+    <p style="margin:18px 0 24px"><a class="btn ghost" href="auteur.html">Lire son histoire →</a></p>
+  </div>
+  <img class="rounded" src="img/page-titre.jpg" alt="Page de titre du livre" loading="lazy" style="max-height:420px;object-fit:cover;width:100%">
+</div></section>
+
+<section id="commander" class="alt"><div class="wrap" style="max-width:720px">
+  <span class="tag">Commande</span>
+  <h2>Recevez le livre chez vous</h2>
+  <p style="color:var(--mut);margin-bottom:26px">Remplissez le formulaire : nous vous rappelons pour confirmer la livraison. Aucun paiement en ligne n'est demandé maintenant.</p>
+  <div class="card">
+    <form id="form">
+      <div class="row">
+        <label>Nom complet *<input name="nom" required autocomplete="name"></label>
+        <label>Téléphone (WhatsApp) *<input name="telephone" type="tel" required autocomplete="tel" placeholder="07 00 00 00"></label>
+      </div>
+      <label>Email (facultatif)<input name="email" type="email" autocomplete="email"></label>
+      <div class="row">
+        <label>Ville *<input name="ville" required placeholder="Libreville, Port-Gentil…"></label>
+        <label>Quartier<input name="quartier"></label>
+      </div>
+      <label>Adresse de livraison *<textarea name="adresse" rows="2" required placeholder="Rue, repère, point de référence…"></textarea></label>
+      <div class="row">
+        <label>Quantité<select name="quantite" id="qte"></select></label>
+        <label>Mode de paiement<select name="paiement" id="paiement"><option>À la livraison</option><option>Mobile Money</option></select></label>
+      </div>
+      <p id="mm" style="display:none;color:var(--mut);font-size:.9rem"></p>
+      <div class="recap"><span id="detail">—</span><strong id="total">—</strong></div>
+      <div class="msg" id="err"></div>
+      <button class="btn" id="go">Valider ma commande</button>
+    </form>
+    <div class="ok-box" id="ok">
+      <h3>Merci !</h3>
+      <p>Votre commande <strong id="ref"></strong> est bien enregistrée.<br>Nous vous contactons très vite pour la livraison.</p>
+      <p style="margin-top:12px;color:var(--mut)">Montant à régler : <strong id="okTotal" style="color:var(--gold)"></strong></p>
+    </div>
+  </div>
+</div></section>
+</main>
+
+<a class="wa" id="wa" href="#" aria-label="WhatsApp" target="_blank" rel="noopener">✆</a>
+<footer><div class="wrap">
+  <p>© 2026 Kelly Ondo Obiang · <em>L'espoir doit mourir en dernier</em> — Éditions Filiga</p>
+  <p style="margin-top:6px">Site développé par <a href="#">Nendja</a></p>
+</div></footer>
+
+<script>
+let C;
+const $ = (id) => document.getElementById(id);
+const fmt = (n) => n.toLocaleString('fr-FR').replace(/ /g, ' ') + ' ' + C.devise;
+function calc() {
+  const q = +$('qte').value;
+  $('detail').textContent = `${q} × ${fmt(C.prix)} + livraison ${fmt(C.fraisLivraison)}`;
+  $('total').textContent = fmt(q * C.prix + C.fraisLivraison);
+  $('mm').style.display = $('paiement').value === 'Mobile Money' ? 'block' : 'none';
+}
+// Mode vitrine (sans serveur, ex. GitHub Pages) : la commande part par WhatsApp.
+let STATIC = false;
+const FALLBACK = { prix: 15000, fraisLivraison: 2000, devise: 'FCFA', whatsapp: '24100000000', mobileMoney: 'Airtel Money / Moov Money : 07 00 00 00' };
+fetch('/api/config').then((r) => { if (!r.ok) throw 0; return r.json(); }).catch(() => { STATIC = true; return FALLBACK; }).then((c) => {
+  C = c;
+  $('prix').textContent = fmt(c.prix);
+  $('qte').innerHTML = Array.from({ length: 10 }, (_, i) => `<option>${i + 1}</option>`).join('');
+  $('mm').textContent = 'Réglez par ' + c.mobileMoney + ' — nous vous confirmons par téléphone.';
+  $('wa').href = 'https://wa.me/' + c.whatsapp + '?text=' + encodeURIComponent("Bonjour, je souhaite commander « L'espoir doit mourir en dernier ».");
+  calc();
+});
+$('qte').onchange = $('paiement').onchange = calc;
+$('form').onsubmit = async (e) => {
+  e.preventDefault();
+  $('err').className = 'msg';
+  $('go').disabled = true;
+  if (STATIC) {
+    const f = Object.fromEntries(new FormData(e.target));
+    const txt = `Bonjour, je commande ${f.quantite} exemplaire(s) de « L'espoir doit mourir en dernier ».\nNom : ${f.nom}\nTél : ${f.telephone}\nLivraison : ${f.adresse}, ${f.quartier || ''} ${f.ville}\nPaiement : ${f.paiement}\nTotal : ${$('total').textContent}`;
+    window.open('https://wa.me/' + C.whatsapp + '?text=' + encodeURIComponent(txt), '_blank');
+    $('go').disabled = false;
+    return;
+  }
+  try {
+    const r = await fetch('/api/commande', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.fromEntries(new FormData(e.target))) });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || 'Erreur');
+    $('ref').textContent = d.reference;
+    $('okTotal').textContent = fmt(d.total);
+    $('form').style.display = 'none';
+    $('ok').style.display = 'block';
+  } catch (er) {
+    $('err').textContent = er.message;
+    $('err').className = 'msg err';
+    $('go').disabled = false;
+  }
+};
+</script>
+</body>
+</html>
