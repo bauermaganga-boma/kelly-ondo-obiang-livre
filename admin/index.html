@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Gestion — Ventes du livre</title>
+<link rel="stylesheet" href="../style.css">
+<style>
+.btn,button,select,input{min-height:44px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:20px 0}
+.stat{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:16px}
+.stat b{display:block;font:800 1.5rem 'Playfair Display',serif;color:var(--gold);word-break:break-word}
+.stat span{color:var(--mut);font-size:.82rem}
+.dash{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px}
+.panel{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:18px}
+.panel h3{font:600 1rem Inter,sans-serif;color:var(--mut);margin-bottom:14px}
+.pie{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.pie svg{width:170px;height:170px;flex:none;margin:auto}
+.legend{list-style:none;padding:0;flex:1;min-width:190px;font-size:.88rem}
+.legend li{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--line)}
+.legend i{width:12px;height:12px;border-radius:3px;flex:none}
+.legend span{margin-left:auto;color:var(--mut);text-align:right}
+.bars div{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:.88rem}
+.bars em{font-style:normal;width:84px;color:var(--mut);flex:none}
+.bars u{display:block;height:14px;border-radius:4px;background:var(--gold);min-width:3px;text-decoration:none}
+.bars b{font-weight:600}
+.bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.bar input,.bar select{width:auto;flex:1;min-width:140px}
+.bar .btn{padding:11px 18px;display:inline-flex;align-items:center;justify-content:center}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--mut);font-weight:500;white-space:nowrap}
+td select,td input{padding:6px 8px;font-size:.88rem;width:auto}
+.pill{display:inline-block;padding:2px 9px;border-radius:99px;font-size:.78rem;background:#2a2a2a}
+.pill.paye{background:#12351f;color:#7be0a0}
+.pill.non{background:#3a2a10;color:var(--gold2)}
+.flag{display:inline-block;padding:1px 8px;border-radius:99px;font-size:.75rem;background:#1c2a44;color:#9cc2ff;margin-left:4px}
+#login{max-width:360px;margin:15vh auto}
+#app{display:none;padding:22px 0 60px}
+#offline{display:none;max-width:520px;margin:12vh auto;text-align:center}
+small{color:var(--mut)}
+.chk{display:inline-flex;align-items:center;gap:6px;font-size:.82rem;color:var(--mut)}
+.chk input{width:22px;min-height:22px}
+@media(max-width:760px){
+  .dash{grid-template-columns:1fr}
+  .stats{grid-template-columns:1fr 1fr}
+  .bar input,.bar select{flex:1 1 100%}
+  .bar .btn{flex:1 1 calc(50% - 5px)}
+  thead{display:none}
+  table,tbody,tr,td{display:block;width:100%}
+  tr{background:var(--bg2);border:1px solid var(--line);border-radius:10px;margin-bottom:12px;padding:6px 14px}
+  td{border:0;border-bottom:1px solid var(--line);padding:10px 0}
+  td:last-child{border-bottom:0}
+  td::before{content:attr(data-l);display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);margin-bottom:3px}
+  td select,td input[type=text]{width:100%}
+  td.acts .btn{width:100%}
+}
+@media print{header,.stats,.dash,.bar,.noprint{display:none!important}body{background:#fff;color:#000}th,td{border-color:#999;color:#000}.pill,.flag{background:none!important;color:#000!important}tr{break-inside:avoid}}
+</style>
+</head>
+<body>
+<header class="noprint"><div class="wrap"><span class="logo">Gestion <span>· Ventes</span></span><button class="btn ghost" id="out" style="display:none;padding:7px 14px">Déconnexion</button></div></header>
+
+<div class="wrap" id="offline"><div class="card">
+  <h2 style="font-size:1.5rem">Serveur requis</h2>
+  <p style="color:var(--mut)">Cet espace de gestion fonctionne sur le site hébergé avec son serveur (suivi des commandes en ligne). Cette version de démonstration n'enregistre pas de commandes.</p>
+</div></div>
+
+<div class="wrap" id="login"><div class="card">
+  <h2 style="font-size:1.6rem">Connexion</h2>
+  <form id="lf"><label>Mot de passe<input type="password" id="pw" required autofocus></label><div class="msg" id="lerr"></div><button class="btn">Entrer</button></form>
+</div></div>
+
+<div class="wrap" id="app">
+  <div class="stats">
+    <div class="stat"><b id="sN">0</b><span>Commandes</span></div>
+    <div class="stat"><b id="sQ">0</b><span>Exemplaires vendus</span></div>
+    <div class="stat"><b id="sCA">0</b><span>Chiffre d'affaires (hors annulées)</span></div>
+    <div class="stat"><b id="sP">0</b><span>Déjà encaissé</span></div>
+    <div class="stat"><b id="sL">0</b><span>À livrer</span></div>
+  </div>
+
+  <div class="dash">
+    <div class="panel"><h3>Ventes par pays (exemplaires)</h3>
+      <div class="pie"><svg id="pie" viewBox="-1 -1 2 2" role="img" aria-label="Répartition des ventes par pays"></svg><ul class="legend" id="legend"></ul></div>
+    </div>
+    <div class="panel"><h3>Avancement des commandes</h3><div class="bars" id="bars"></div></div>
+  </div>
+
+  <div class="bar noprint">
+    <input id="q" placeholder="Rechercher nom, téléphone, ville, référence…">
+    <select id="fp"><option value="">Tous les pays</option></select>
+    <select id="fs"><option value="">Tous les statuts</option></select>
+    <button class="btn ghost" id="refresh">↻ Actualiser</button>
+    <button class="btn ghost" id="print">Imprimer</button>
+    <a class="btn" href="../api/admin/export.csv">Exporter (Excel)</a>
+  </div>
+  <table>
+    <thead><tr><th>Réf. / date</th><th>Client</th><th>Livraison</th><th>Qté / total</th><th>Paiement</th><th>Statut</th><th class="noprint">Note</th><th class="noprint"></th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table>
+  <p id="empty" style="display:none;color:var(--mut);padding:30px 0">Aucune commande pour le moment.</p>
+</div>
+
+<script>
+const STATUTS = ['nouvelle', 'confirmée', 'expédiée', 'livrée', 'annulée'];
+const COLORS = ['#e8a317', '#4f8cff', '#3ecf8e', '#a78bfa', '#f87171', '#22d3ee', '#fb923c', '#f472b6'];
+const $ = (id) => document.getElementById(id);
+let data = [];
+const money = (n, d = 'FCFA') => n.toLocaleString('fr-FR').replace(/ /g, ' ') + (d === 'EUR' ? ' €' : ' FCFA');
+const el = (tag, props = {}, ...kids) => { const e = Object.assign(document.createElement(tag), props); kids.forEach((k) => e.append(k)); return e; };
+const svg = (tag, attrs) => { const e = document.createElementNS('http://www.w3.org/2000/svg', tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
+const pays = (c) => c.pays || 'Gabon';
+
+async function call(url, opts) {
+  const r = await fetch(url, opts && { headers: { 'Content-Type': 'application/json' }, ...opts });
+  if (r.status === 401) { showLogin(); throw new Error('401'); }
+  if (!r.ok && r.status !== 400) { showOffline(); throw new Error('offline'); }
+  return r.json();
+}
+const patch = (id, body) => call('../api/admin/commandes/' + id, { method: 'PATCH', body: JSON.stringify(body) });
+
+const hide = () => ['login', 'app', 'offline'].forEach((i) => ($(i).style.display = 'none'));
+function showLogin() { hide(); $('login').style.display = ''; $('out').style.display = 'none'; }
+function showApp() { hide(); $('app').style.display = 'block'; $('out').style.display = ''; }
+function showOffline() { hide(); $('offline').style.display = 'block'; }
+
+$('fs').append(...STATUTS.map((s) => el('option', { value: s, textContent: s })));
+
+$('lf').onsubmit = async (e) => {
+  e.preventDefault();
+  const r = await fetch('../api/admin/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: $('pw').value }) });
+  if (r.ok) { showApp(); load(); } else { $('lerr').textContent = 'Mot de passe incorrect.'; $('lerr').className = 'msg err'; }
+};
+$('out').onclick = async () => { await fetch('../api/admin/logout', { method: 'POST' }); $('pw').value = ''; showLogin(); };
+$('print').onclick = () => window.print();
+$('refresh').onclick = load;
+$('q').oninput = $('fs').onchange = $('fp').onchange = render;
+
+async function load() { data = await call('../api/admin/commandes'); render(); }
+
+function drawPie(live) {
+  const by = {};
+  live.forEach((c) => { const k = pays(c); (by[k] ||= { n: 0, q: 0, fcfa: 0, eur: 0 }); by[k].n++; by[k].q += c.quantite; by[k][c.devise === 'EUR' ? 'eur' : 'fcfa'] += c.total; });
+  const entries = Object.entries(by).sort((a, b) => b[1].q - a[1].q);
+  const tot = entries.reduce((a, [, v]) => a + v.q, 0);
+  const pie = $('pie'); pie.replaceChildren();
+  const leg = $('legend'); leg.replaceChildren();
+  if (!tot) { leg.append(el('li', { textContent: 'Pas encore de ventes' })); pie.append(svg('circle', { r: 1, fill: '#2a2a2a' })); return; }
+  let a0 = -Math.PI / 2;
+  entries.forEach(([name, v], i) => {
+    const col = COLORS[i % COLORS.length], frac = v.q / tot;
+    if (frac >= 0.9999) pie.append(svg('circle', { r: 1, fill: col }));
+    else {
+      const a1 = a0 + frac * 2 * Math.PI, big = frac > 0.5 ? 1 : 0;
+      pie.append(svg('path', { d: `M0 0 L${Math.cos(a0)} ${Math.sin(a0)} A1 1 0 ${big} 1 ${Math.cos(a1)} ${Math.sin(a1)} Z`, fill: col, stroke: '#141414', 'stroke-width': .02 }));
+      a0 = a1;
+    }
+    const amount = [v.fcfa ? money(v.fcfa) : '', v.eur ? money(v.eur, 'EUR') : ''].filter(Boolean).join(' + ');
+    leg.append(el('li', {}, el('i', { style: 'background:' + col }), name, el('span', { textContent: `${v.q} ex. · ${Math.round(frac * 100)} %${amount ? ' · ' + amount : ''}` })));
+  });
+}
+
+function drawBars() {
+  const max = Math.max(1, ...STATUTS.map((s) => data.filter((c) => c.statut === s).length));
+  $('bars').replaceChildren(...STATUTS.map((s) => {
+    const n = data.filter((c) => c.statut === s).length;
+    return el('div', {}, el('em', { textContent: s }), el('u', { style: `width:${(n / max) * 60}%` }), el('b', { textContent: n }));
+  }));
+}
+
+function render() {
+  const live = data.filter((c) => c.statut !== 'annulée');
+  const sum = (l) => [l.filter((c) => c.devise !== 'EUR'), l.filter((c) => c.devise === 'EUR')].map((g, i) => (g.length ? money(g.reduce((x, c) => x + c.total, 0), i ? 'EUR' : 'FCFA') : '')).filter(Boolean).join(' + ') || '0';
+  $('sN').textContent = data.length;
+  $('sQ').textContent = live.reduce((a, c) => a + c.quantite, 0);
+  $('sCA').textContent = sum(live);
+  $('sP').textContent = sum(live.filter((c) => c.paye));
+  $('sL').textContent = data.filter((c) => ['nouvelle', 'confirmée', 'expédiée'].includes(c.statut)).length;
+  drawPie(live); drawBars();
+
+  const cur = $('fp').value;
+  const countries = [...new Set(data.map(pays))].sort();
+  $('fp').replaceChildren(el('option', { value: '', textContent: 'Tous les pays' }), ...countries.map((p) => el('option', { value: p, textContent: p, selected: p === cur })));
+
+  const q = $('q').value.toLowerCase(), fs = $('fs').value, fp = $('fp').value;
+  const list = data.filter((c) => (!fs || c.statut === fs) && (!fp || pays(c) === fp) && (!q || [c.nom, c.telephone, c.ville, c.quartier, c.adresse, c.reference, c.email, pays(c)].join(' ').toLowerCase().includes(q)));
+  $('empty').style.display = list.length ? 'none' : 'block';
+
+  $('rows').replaceChildren(...list.map((c) => {
+    const st = el('select');
+    STATUTS.forEach((s) => st.append(el('option', { value: s, textContent: s, selected: s === c.statut })));
+    st.onchange = async () => { await patch(c.id, { statut: st.value }); c.statut = st.value; render(); };
+    const paid = el('input', { type: 'checkbox', checked: !!c.paye });
+    paid.onchange = async () => { await patch(c.id, { paye: paid.checked }); c.paye = paid.checked ? 1 : 0; render(); };
+    const note = el('input', { type: 'text', value: c.note || '', placeholder: 'note…' });
+    note.onchange = () => patch(c.id, { note: note.value });
+    const del = el('button', { className: 'btn ghost', textContent: '✕ Supprimer', style: 'padding:6px 12px' });
+    del.onclick = async () => { if (confirm(`Supprimer définitivement la commande ${c.reference} ?`)) { await call('../api/admin/commandes/' + c.id, { method: 'DELETE' }); load(); } };
+    const tel = el('a', { href: 'tel:' + c.telephone, textContent: c.telephone });
+    const wa = el('a', { href: 'https://wa.me/' + c.telephone.replace(/\D/g, ''), target: '_blank', rel: 'noopener', textContent: ' · WhatsApp', className: 'noprint' });
+    const td = (l, cls, ...k) => { const e = el('td', { className: cls || '' }, ...k); e.dataset.l = l; return e; };
+    return el('tr', {},
+      td('Commande', '', el('b', { textContent: c.reference }), el('br'), el('small', { textContent: new Date(c.date).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }) })),
+      td('Client', '', el('b', { textContent: c.nom }), el('br'), tel, wa, ...(c.email ? [el('br'), el('small', { textContent: c.email })] : [])),
+      td('Livraison', '', el('b', { textContent: c.ville + (c.quartier ? ' — ' + c.quartier : '') }), el('span', { className: 'flag', textContent: pays(c) }), el('br'), el('small', { textContent: c.adresse })),
+      td('Quantité / total', '', `${c.quantite} ex.`, el('br'), el('b', { textContent: money(c.total, c.devise) })),
+      td('Paiement', '', c.paiement, el('br'), el('span', { className: 'pill ' + (c.paye ? 'paye' : 'non'), textContent: c.paye ? 'payé' : 'à encaisser' }), ' ', el('label', { className: 'chk noprint' }, paid, 'payé')),
+      td('Statut', '', st),
+      td('Note', 'noprint', note),
+      td('', 'noprint acts', del));
+  }));
+}
+
+call('../api/admin/commandes').then((d) => { data = d; showApp(); render(); }).catch((e) => { if (e.message !== '401' && e.message !== 'offline') showOffline(); });
+</script>
+</body>
+</html>
