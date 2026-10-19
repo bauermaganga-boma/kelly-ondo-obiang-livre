@@ -1,4 +1,4 @@
-800&family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;800&family=Inter:wght@400;500;600&display=swap');
 :root{--bg:#0b0b0b;--bg2:#141414;--line:#2a2a2a;--gold:#e8a317;--gold2:#f5c451;--txt:#f2efe8;--mut:#a8a396}
 *{box-sizing:border-box;margin:0}
 html{scroll-behavior:smooth}
