@@ -105,7 +105,10 @@ function calc() {
   $('total').textContent = fmt(q * C.prix + C.fraisLivraison);
   $('mm').style.display = $('paiement').value === 'Mobile Money' ? 'block' : 'none';
 }
-fetch('/api/config').then((r) => r.json()).then((c) => {
+// Mode vitrine (sans serveur, ex. GitHub Pages) : la commande part par WhatsApp.
+let STATIC = false;
+const FALLBACK = { prix: 15000, fraisLivraison: 2000, devise: 'FCFA', whatsapp: '24100000000', mobileMoney: 'Airtel Money / Moov Money : 07 00 00 00' };
+fetch('/api/config').then((r) => { if (!r.ok) throw 0; return r.json(); }).catch(() => { STATIC = true; return FALLBACK; }).then((c) => {
   C = c;
   $('prix').textContent = fmt(c.prix);
   $('qte').innerHTML = Array.from({ length: 10 }, (_, i) => `<option>${i + 1}</option>`).join('');
@@ -118,6 +121,13 @@ $('form').onsubmit = async (e) => {
   e.preventDefault();
   $('err').className = 'msg';
   $('go').disabled = true;
+  if (STATIC) {
+    const f = Object.fromEntries(new FormData(e.target));
+    const txt = `Bonjour, je commande ${f.quantite} exemplaire(s) de « L'espoir doit mourir en dernier ».\nNom : ${f.nom}\nTél : ${f.telephone}\nLivraison : ${f.adresse}, ${f.quartier || ''} ${f.ville}\nPaiement : ${f.paiement}\nTotal : ${$('total').textContent}`;
+    window.open('https://wa.me/' + C.whatsapp + '?text=' + encodeURIComponent(txt), '_blank');
+    $('go').disabled = false;
+    return;
+  }
   try {
     const r = await fetch('/api/commande', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.fromEntries(new FormData(e.target))) });
     const d = await r.json();
