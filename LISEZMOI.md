@@ -6,7 +6,7 @@ Site 100 % statique (GitHub Pages) : `index.html` (vente), `auteur.html` (l'aute
 Tout est dans `config.js` : prix (FCFA et €), frais de livraison Gabon / Europe, numéro WhatsApp, numéro Mobile Money.
 
 ## Back office (`/admin/`)
-- **Sans Supabase (état actuel)** : mode démonstration. Les commandes sont enregistrées dans le navigateur de chaque visiteur seulement, l'admin est ouvert. Les clients confirment par WhatsApp.
+- **Sans Supabase (état actuel) : démonstration.** Le back office s'ouvre avec des ventes FICTIVES (Gabon + Europe) pour présenter l'outil. Aucun mot de passe. Les commandes passées sur le site s'ajoutent dans le navigateur seulement.
 - **Avec Supabase (mode réel)** : toutes les commandes arrivent dans la base, l'admin demande email + mot de passe.
   1. Créer un projet sur supabase.com.
   2. SQL Editor : coller et exécuter `supabase/install.sql`.
