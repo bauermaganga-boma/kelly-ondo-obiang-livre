@@ -23,7 +23,7 @@
     <span class="tag">Essai · Éditions Filiga</span>
     <h1>L'espoir doit mourir <em>en dernier</em></h1>
     <p class="sub">Mémoires d'un patriote gabonais</p>
-    <p class="lead">Un récit vrai, une réflexion sur la résilience, la justice et la place du citoyen face à l'adversité — adressée à la jeunesse africaine.</p>
+    <p class="lead">Livraison au Gabon, en France et partout en Europe.<br>Un récit vrai, une réflexion sur la résilience, la justice et la place du citoyen face à l'adversité — adressée à la jeunesse africaine.</p>
     <div class="cta"><span class="price" id="prix">—</span><span class="cur" role="group" aria-label="Devise"><button type="button" data-cur="FCFA" class="on">FCFA</button><button type="button" data-cur="EUR">€</button></span><a class="btn" href="#commander">Commander mon exemplaire</a><a class="btn ghost" href="auteur.html">Découvrir l'auteur</a></div>
   </div>
   <img class="cover" src="img/couverture.jpg" alt="Couverture du livre L'espoir doit mourir en dernier">
@@ -71,6 +71,7 @@
         <label>Téléphone (WhatsApp) *<input name="telephone" type="tel" required autocomplete="tel" placeholder="07 00 00 00"></label>
       </div>
       <label>Email (facultatif)<input name="email" type="email" autocomplete="email"></label>
+      <label>Pays de livraison<select name="pays" id="pays"><option>Gabon</option></select></label>
       <div class="row">
         <label>Ville *<input name="ville" required placeholder="Libreville, Port-Gentil…"></label>
         <label>Quartier<input name="quartier"></label>
@@ -80,8 +81,9 @@
         <label>Quantité<select name="quantite" id="qte"></select></label>
         <label>Mode de paiement<select name="paiement" id="paiement"><option>À la livraison</option><option>Mobile Money</option></select></label>
       </div>
-      <label>Je paie en<select name="devise" id="devise"><option value="FCFA">Francs CFA (FCFA)</option><option value="EUR">Euros (€)</option></select></label>
+      <label id="devLabel">Je paie en<select name="devise" id="devise"><option value="FCFA">Francs CFA (FCFA)</option><option value="EUR">Euros (€)</option></select></label>
       <p id="mm" style="display:none;color:var(--mut);font-size:.9rem"></p>
+      <p id="mm2" style="display:none;color:var(--mut);font-size:.9rem">Livraison en Europe : nous vous envoyons par message le lien de paiement sécurisé ou les coordonnées bancaires avant l'expédition.</p>
       <div class="recap"><span id="detail">—</span><strong id="total">—</strong></div>
       <div class="msg" id="err"></div>
       <button class="btn" id="go">Valider ma commande</button>
@@ -106,7 +108,14 @@ let C;
 const $ = (id) => document.getElementById(id);
 let cur = 'FCFA';
 const fmt = (n) => n.toLocaleString('fr-FR').replace(/ /g, ' ') + (cur === 'EUR' ? ' €' : ' FCFA');
-const P = () => (cur === 'EUR' ? C.prixEuro : C.prix), F = () => (cur === 'EUR' ? C.fraisLivraisonEuro : C.fraisLivraison);
+const abroad = () => $('pays').value !== 'Gabon';
+const P = () => (cur === 'EUR' ? C.prixEuro : C.prix), F = () => (abroad() ? C.fraisLivraisonEurope : cur === 'EUR' ? C.fraisLivraisonEuro : C.fraisLivraison);
+function onPays() {
+  const ab = abroad();
+  $('paiement').innerHTML = (ab ? ['Lien de paiement (carte / PayPal)', 'Virement bancaire'] : ['À la livraison', 'Mobile Money']).map((o) => `<option>${o}</option>`).join('');
+  $('devLabel').style.display = ab ? 'none' : '';
+  if (ab) setCur('EUR'); else calc();
+}
 function setCur(v) {
   cur = v; $('devise').value = v; $('prix').textContent = fmt(P());
   document.querySelectorAll('.cur button').forEach((b) => b.classList.toggle('on', b.dataset.cur === v));
@@ -117,13 +126,15 @@ function calc() {
   $('detail').textContent = `${q} × ${fmt(P())} + livraison ${fmt(F())}`;
   $('total').textContent = fmt(q * P() + F());
   $('mm').style.display = $('paiement').value === 'Mobile Money' ? 'block' : 'none';
+  $('mm2').style.display = abroad() ? 'block' : 'none';
 }
 // Mode vitrine (sans serveur, ex. GitHub Pages) : la commande part par WhatsApp.
 let STATIC = false;
-const FALLBACK = { prix: 25000, fraisLivraison: 2000, prixEuro: 38, fraisLivraisonEuro: 3, devise: 'FCFA', whatsapp: '24100000000', mobileMoney: 'Airtel Money / Moov Money : 07 00 00 00' };
+const FALLBACK = { prix: 25000, fraisLivraison: 2000, prixEuro: 38, fraisLivraisonEuro: 3, fraisLivraisonEurope: 8, paysEurope: ['France', 'Belgique', 'Suisse', 'Allemagne', 'Espagne', 'Italie', 'Royaume-Uni', "Autre pays d'Europe"], devise: 'FCFA', whatsapp: '24100000000', mobileMoney: 'Airtel Money / Moov Money : 07 00 00 00' };
 fetch('/api/config').then((r) => { if (!r.ok) throw 0; return r.json(); }).catch(() => { STATIC = true; return FALLBACK; }).then((c) => {
   C = c;
   $('prix').textContent = fmt(P());
+  $('pays').append(...c.paysEurope.map((p) => Object.assign(document.createElement('option'), { textContent: p })));
   $('qte').innerHTML = Array.from({ length: 10 }, (_, i) => `<option>${i + 1}</option>`).join('');
   $('mm').textContent = 'Réglez par ' + c.mobileMoney + ' — nous vous confirmons par téléphone.';
   $('wa').href = 'https://wa.me/' + c.whatsapp + '?text=' + encodeURIComponent("Bonjour, je souhaite commander « L'espoir doit mourir en dernier ».");
@@ -131,6 +142,7 @@ fetch('/api/config').then((r) => { if (!r.ok) throw 0; return r.json(); }).catch
 });
 $('qte').onchange = $('paiement').onchange = calc;
 $('devise').onchange = () => setCur($('devise').value);
+$('pays').onchange = onPays;
 document.querySelectorAll('.cur button').forEach((b) => (b.onclick = () => setCur(b.dataset.cur)));
 $('form').onsubmit = async (e) => {
   e.preventDefault();
@@ -138,7 +150,7 @@ $('form').onsubmit = async (e) => {
   $('go').disabled = true;
   if (STATIC) {
     const f = Object.fromEntries(new FormData(e.target));
-    const txt = `Bonjour, je commande ${f.quantite} exemplaire(s) de « L'espoir doit mourir en dernier ».\nNom : ${f.nom}\nTél : ${f.telephone}\nLivraison : ${f.adresse}, ${f.quartier || ''} ${f.ville}\nPaiement : ${f.paiement}\nTotal : ${$('total').textContent}`;
+    const txt = `Bonjour, je commande ${f.quantite} exemplaire(s) de « L'espoir doit mourir en dernier ».\nNom : ${f.nom}\nTél : ${f.telephone}\nLivraison : ${f.adresse}, ${f.quartier || ''} ${f.ville} (${f.pays})\nPaiement : ${f.paiement}\nTotal : ${$('total').textContent}`;
     window.open('https://wa.me/' + C.whatsapp + '?text=' + encodeURIComponent(txt), '_blank');
     $('go').disabled = false;
     return;
